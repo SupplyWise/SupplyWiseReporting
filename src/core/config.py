@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, ConfigDict
 from enum import Enum
 
 class StorageType(str, Enum):
@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     debug: bool = True
 
     #TODO: temporary locally only
-    storage_type: StorageType = StorageType.LOCAL  # Força LOCAL como padrão
+    storage_type: StorageType = StorageType.LOCAL
 
     # # Storage settings
     # storage_type: str = Field("LOCAL", env="STORAGE_TYPE")  # LOCAL or S3
@@ -23,8 +23,8 @@ class Settings(BaseSettings):
     # aws_secret_key: str = Field(None, env="AWS_SECRET_KEY")
     # aws_region: str = Field(None, env="AWS_REGION")
 
-    class Config:
-        env_file = ".env"
+    # ConfigDict to load environment variables (Class Config is deprecated)
+    model_config = ConfigDict(env_file=".env")
 
 # Method to retrieve the settings
 def get_settings() -> Settings:

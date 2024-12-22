@@ -32,6 +32,7 @@ class ReportRequest(BaseModel):
         return values
 
 class ReportResponse(BaseModel):
-    report_id: str = Field(..., example="2024-03-22-company1-restaurant2")
+    # json_schema_extra is used to generate example values in the OpenAPI, as example is deprecated
+    report_id: str = Field(..., json_schema_extra="2024-03-22-company1-restaurant2")
     created_at: datetime
     storage_path: str
