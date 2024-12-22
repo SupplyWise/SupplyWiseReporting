@@ -1,3 +1,10 @@
+## Added by developers ##
+
+# Ignore locally generated reports
+reports/
+
+## GITHUB Template for Python Projects ##
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
