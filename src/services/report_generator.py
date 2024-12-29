@@ -4,6 +4,7 @@ from io import BytesIO
 from src.models.schemas import ReportRequest
 
 class ReportGenerator:
+    #TODO mudar para algo com htlm ou assim
     def generate_report(self, data: ReportRequest) -> bytes:
         """
         Generates a PDF report based on the data provided.

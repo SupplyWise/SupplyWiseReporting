@@ -31,17 +31,20 @@ async def generate_report(
     try:
         logging.info("Initializing report generation...")
         
-        # Generate a unique report ID
-        report_id = f"{datetime.now().strftime('%Y-%m-%d')}-{report_data.company_id}-{report_data.restaurant_id}"
+        # Generate a unique report ID using the close time
+        closing_time = report_data.inventory_close_time.strftime('%Y-%m-%d')
+        report_id = f"{closing_time}-{report_data.company_id}-{report_data.restaurant_id}"
         
         # Generate a PDF
+        logging.info(f"Generating report {report_id}...")
         generator = ReportGenerator()
         pdf_content = generator.generate_report(report_data)
         
         # Save the PDF
+        logging.info(f"Saving report {report_id}...")
         storage_path = await storage_service.save_report(report_id, pdf_content)
         
-        logging.info(f"Report {report_id} successfully generated.")
+        logging.info(f"Report {report_id} successfully generated and saved.")
         return ReportResponse(
             report_id=report_id,
             created_at=datetime.now(),
