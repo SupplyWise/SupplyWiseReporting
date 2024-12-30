@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from src.main import app
-from uuid import uuid4
+from tests.utils.report import generate_valid_report_request
 
 client = TestClient(app)
 
@@ -10,62 +10,43 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 def test_generate_report_success():
-    response = client.post(
-        "/reports/",
-        json={
-            "company_id": str(uuid4()),
-            "company_name": "Test Company",
-            "restaurant_id": str(uuid4()),
-            "restaurant_name": "Test Restaurant",
-            "user_id": str(uuid4()),
-            "user_name": "Test User",
-            "inventory_close_time": "2024-12-22T10:00:00",
-            "products": [
-                {"product_id": str(uuid4()), "product_name": "Product A", "quantity": 5.0},
-                {"product_id": str(uuid4()), "product_name": "Product B", "quantity": 10.0}
-            ],
-        },
-    )
+    request_data = generate_valid_report_request()
+    response = client.post("/reports/", json=request_data)
     assert response.status_code == 200
     data = response.json()
     assert "report_id" in data
-    assert data["report_id"].startswith("2024-12-22")
+    assert "report_name" in data
+    assert data["report_name"] == request_data["report_name"]
+
+def test_generate_report_invalid_report_name():
+    request_data = generate_valid_report_request()
+    request_data["report_name"] = "a"  # Invalid name
+    response = client.post("/reports/", json=request_data)
+    assert response.status_code == 422
+    assert "Report Name must be between 3 and 100 characters long" in str(response.json())
 
 def test_generate_report_empty_products():
-    response = client.post(
-        "/reports/",
-        json={
-            "company_id": str(uuid4()),
-            "company_name": "Test Company",
-            "restaurant_id": str(uuid4()),
-            "restaurant_name": "Test Restaurant",
-            "user_id": str(uuid4()),
-            "user_name": "Test User",
-            "inventory_close_time": "2024-12-22T10:00:00",
-            "products": [],
-        },
-    )
-    assert response.status_code == 422  # Validation error
-    assert "Products list must not be empty" in response.json()["detail"][0]["msg"]
+    request_data = generate_valid_report_request()
+    request_data["products"] = []  # Empty products list
+    response = client.post("/reports/", json=request_data)
+    assert response.status_code == 422
+    # Obtaining the pydantic error message
+    assert "List should have at least 1 item after validation" in response.json()["detail"][0]["msg"]
 
 def test_generate_report_negative_quantity():
-    response = client.post(
-        "/reports/",
-        json={
-            "company_id": str(uuid4()),
-            "company_name": "Test Company",
-            "restaurant_id": str(uuid4()),
-            "restaurant_name": "Test Restaurant",
-            "user_id": str(uuid4()),
-            "user_name": "Test User",
-            "inventory_close_time": "2024-12-22T10:00:00",
-            "products": [
-                {"product_id": str(uuid4()), "product_name": "Product A", "quantity": -5.0}
-            ],
-        },
-    )
-    assert response.status_code == 422  # Validation error
-    assert "Quantity must be non-negative" in response.json()["detail"][0]["msg"]
+    request_data = generate_valid_report_request()
+    request_data["products"][0]["quantity"] = -5.0  # Negative quantity
+    response = client.post("/reports/", json=request_data)
+    assert response.status_code == 422
+    # Obtaining the pydantic error message
+    assert "Input should be greater than or equal to 0" in response.json()["detail"][0]["msg"]
+
+def test_generate_report_invalid_product_name():
+    request_data = generate_valid_report_request()
+    request_data["products"][0]["name"] = "A"  # Nome inválido
+    response = client.post("/reports/", json=request_data)
+    assert response.status_code == 422
+    assert "Item Name must be between 3 and 100 characters long" in str(response.json())
 
 def test_get_report_not_found():
     response = client.get("/reports/non-existent-id")

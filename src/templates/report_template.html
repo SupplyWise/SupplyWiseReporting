@@ -79,7 +79,7 @@
             </div>
             <div>
                 <strong>Report Issuer:</strong> {{ report.user_name }}<br>
-                <strong>Closing Date:</strong> {{ report.inventory_close_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                <strong>Closing Date:</strong> {{ report.inventory_actual_close_time.strftime('%Y-%m-%d %H:%M:%S') }}
             </div>
         </div>
     </div>
@@ -88,15 +88,15 @@
         <thead>
             <tr>
                 <th>Product Name</th>
-                <th>Product ID</th>
+                <th>Barcode</th>
                 <th>Quantity</th>
             </tr>
         </thead>
         <tbody>
             {% for product in report.products %}
             <tr>
-                <td>{{ product.product_name }}</td>
-                <td>{{ product.product_id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.barcode }}</td>
                 <td>{{ product.quantity }}</td>
             </tr>
             {% endfor %}
