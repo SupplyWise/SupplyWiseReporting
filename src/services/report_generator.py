@@ -14,7 +14,7 @@ class ReportGenerator:
         template = self.env.get_template('report_template.html')
         html_content = template.render(
             report=data,
-            current_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            current_date=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
         
         return HTML(string=html_content).write_pdf()

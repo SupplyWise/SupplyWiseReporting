@@ -71,18 +71,23 @@
         <p>Generated on {{ current_date }}</p>
     </div>
 
+    <h2>General Information</h2>
+
     <div class="company-info">
         <div class="info-grid">
             <div>
-                <strong>Company:</strong> {{ report.company_name }}<br>
-                <strong>Restaurant:</strong> {{ report.restaurant_name }}
+                <strong>Company:</strong> {{ report.company_data.name }}<br>
+                <strong>Restaurant:</strong> {{ report.restaurant_data.name }}
             </div>
             <div>
-                <strong>Report Issuer:</strong> {{ report.user_name }}<br>
-                <strong>Closing Date:</strong> {{ report.inventory_actual_close_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                <strong>Report Issuer:</strong> {{ report.user_data.name }}<br>
+                <strong>Expected Closing Date:</strong> {{ report.inventory_data.expected_close_time.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                <strong>Actual Closing Date:</strong> {{ report.inventory_data.actual_close_time.strftime('%Y-%m-%d %H:%M:%S') }}
             </div>
         </div>
     </div>
+
+    <h2>Product amounts upon Inventory Closure</h2>
 
     <table class="products-table">
         <thead>
@@ -93,7 +98,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for product in report.products %}
+            {% for product in report.inventory_data.products %}
             <tr>
                 <td>{{ product.name }}</td>
                 <td>{{ product.barcode }}</td>
