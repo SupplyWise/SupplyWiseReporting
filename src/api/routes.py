@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse, RedirectResponse
 
 from src.models.schemas import (
     ReportCreateRequest, 
@@ -9,9 +9,7 @@ from src.services.report_generator import ReportGenerator
 from src.services.storage import StorageService, LocalStorageService, S3StorageService
 from src.core.config import get_settings, StorageType
 
-from datetime import datetime
 import logging
-import os
 
 logging.basicConfig(level=logging.INFO)
 
@@ -40,7 +38,7 @@ async def generate_report(
         
         # Generate a unique report ID
         closing_time = report_data.inventory_data.actual_close_time.strftime('%Y-%m-%d')
-        report_id = f"{closing_time}-{report_data.company_data.id}-{report_data.restaurant_data.id}"
+        report_id = f"{report_data.company_data.id}-{report_data.restaurant_data.id}-{closing_time}"
         
         # Generate PDF
         generator = ReportGenerator()
@@ -74,6 +72,7 @@ async def list_reports(
     try:
         reports, total = await storage_service.list_reports_by_restaurant(company_id, restaurant_id, page, per_page)
         if not reports:
+            logging.error("No reports found.")
             raise HTTPException(status_code=404, detail="No reports found.")
         
         return PaginatedReportsResponse(
@@ -95,16 +94,17 @@ async def download_report(
     """
     Downloads a specific report by ID.
     """
+    logging.info(f"Downloading report: {report_id}")
     try:
-        logging.info(f"Downloading report: {report_id}")
-        file_path = await storage_service.get_report_path(report_id)
-        if not os.path.exists(file_path):
-            raise HTTPException(status_code=404, detail="Report not found.")
-        
-        pdf_file = open(file_path, "rb")
-        return StreamingResponse(pdf_file, media_type="application/pdf", headers={
-            "Content-Disposition": f"attachment; filename={report_id}.pdf"
-        })
-    except Exception as e:
-        logging.error(f"Error downloading report {report_id}: {e}")
-        raise HTTPException(status_code=500, detail="Internal error downloading the report.")
+        # Obtain local path or S3 URL
+        logging.info("Getting report path or S3 URL...")
+        report_path = await storage_service.get_report_path(report_id)
+        if isinstance(storage_service, LocalStorageService):
+            logging.info("Returning file response...")
+            return FileResponse(report_path, media_type="application/pdf", filename=f"{report_id}.pdf")
+        else:
+            logging.info("Returning redirect response...")
+            return RedirectResponse(report_path)  # Return URL for S3
+    except FileNotFoundError:
+        logging.error(f"Report {report_id} not found.")
+        raise HTTPException(status_code=404, detail=f"Report {report_id} not found.")

@@ -10,7 +10,7 @@ from src.models.entities import (
 from src.models.schemas import ReportCreateRequest
 
 def generate_valid_report_request() -> ReportCreateRequest:
-    """Returns a valid request for report creation in tests."""
+    """Returns a valid report creation for service tests."""
     return ReportCreateRequest(
         company_data=CompanyData(
             id=uuid4(),
@@ -34,3 +34,29 @@ def generate_valid_report_request() -> ReportCreateRequest:
         ),
         report_name="Monthly Inventory Report"
     )
+
+def generate_valid_report_request_json() -> dict:
+    """Returns a valid JSON-like dictionary for report creation in route tests."""
+    return {
+        "company_data": {
+            "id": str(uuid4()),  # Convert UUID to string for JSON compatibility
+            "name": "Test Company",
+        },
+        "restaurant_data": {
+            "id": str(uuid4()),
+            "name": "Test Restaurant",
+        },
+        "user_data": {
+            "id": str(uuid4()),
+            "name": "Test User",
+        },
+        "inventory_data": {
+            "expected_close_time": (datetime.now() + timedelta(hours=1)).isoformat(),
+            "actual_close_time": datetime.now().isoformat(),
+            "products": [
+                {"id": str(uuid4()), "name": "Product A", "barcode": 1234567890, "quantity": 5.0},
+                {"id": str(uuid4()), "name": "Product B", "barcode": 1234567891, "quantity": 10.0},
+            ],
+        },
+        "report_name": "Monthly Inventory Report",
+    }
