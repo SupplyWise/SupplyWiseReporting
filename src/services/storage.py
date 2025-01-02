@@ -5,6 +5,7 @@ from math import ceil
 
 from abc import ABC, abstractmethod
 from typing import List, Dict
+from src.models.schemas import ReportMetadata, PaginatedReportsResponse
 
 class StorageService(ABC):
     @abstractmethod
@@ -42,51 +43,58 @@ class LocalStorageService(StorageService):
             f.write(content)
         return file_path
 
-#TODO maybe remove pagination and list all instead
-    # async def list_reports_by_restaurant(self, company_id: str, restaurant_id: str) -> List[Dict]:
-    #     """
-    #     Lists all report files with metadata for a specific company and restaurant.
-    #     """
-    #     report_files = []
-    #     prefix = f"{company_id}-{restaurant_id}-"
-    #     for file_name in os.listdir(self.base_dir):
-    #         if file_name.startswith(prefix) and file_name.endswith(".pdf"):
-    #             file_path = os.path.join(self.base_dir, file_name)
-    #             created_at = datetime.fromtimestamp(os.path.getctime(file_path))
-    #             report_files.append({"file_name": file_name, "created_at": created_at})
-    #     return report_files
-
-    async def list_reports_by_restaurant(self, company_id: str, restaurant_id: str, page: int, per_page: int) -> Dict:
+    async def list_reports_by_restaurant(
+        self, company_id: str, restaurant_id: str, page: int, per_page: int
+    ) -> PaginatedReportsResponse:
         """
         Lists report files with metadata for a specific company and restaurant with pagination.
         """
         report_files = []
         prefix = f"{company_id}-{restaurant_id}-"
-        
-        # Filter by prefix
+
+        # Filter and gather report files
         for file_name in os.listdir(self.base_dir):
             if file_name.startswith(prefix) and file_name.endswith(".pdf"):
                 file_path = os.path.join(self.base_dir, file_name)
                 created_at = datetime.fromtimestamp(os.path.getctime(file_path))
-                report_files.append({"file_name": file_name, "created_at": created_at})
+
+                # Extract metadata for each report
+                extracted_id = file_name.split(".")[0]
+                report_files.append(
+                    ReportMetadata(
+                        report_id=extracted_id,
+                        report_name=file_name,  # Placeholder for now
+                        created_at=created_at,
+                        user_name="Unknown",  # Placeholder for now
+                    )
+                )
         
+        # Handle no reports found
+        if not report_files:
+            raise ValueError("No reports found for the specified company and restaurant.")
+
         # Order by latest created
-        report_files.sort(key=lambda x: x["created_at"], reverse=True)
-        
+        report_files.sort(key=lambda x: x.created_at, reverse=True)
+
         # Pagination logic
         total_reports = len(report_files)
         total_pages = ceil(total_reports / per_page)
+
+        # Handle invalid page number
+        if page > total_pages and total_reports > 0:  # Invalid page requested
+            raise ValueError(f"Page {page} is out of range. Total pages: {total_pages}.")
+        
         start = (page - 1) * per_page
         end = start + per_page
         paginated_reports = report_files[start:end]
 
-        return {
-            "reports": paginated_reports,
-            "page": page,
-            "per_page": per_page,
-            "total_pages": total_pages,
-            "total_reports": total_reports,
-        }
+        # Return formatted response
+        return PaginatedReportsResponse(
+            reports=paginated_reports,
+            total=total_reports,
+            page=page,
+            per_page=per_page,
+        )
 
     async def get_report(self, report_id: str) -> bytes:
         """

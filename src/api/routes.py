@@ -3,11 +3,13 @@ from fastapi.responses import StreamingResponse, FileResponse, RedirectResponse
 
 from src.models.schemas import (
     ReportCreateRequest, 
+    ReportMetadata,
     PaginatedReportsResponse, 
 )
 from src.services.report_generator import ReportGenerator
 from src.services.storage import StorageService, LocalStorageService, S3StorageService
 from src.core.config import get_settings, StorageType
+from uuid import uuid4
 
 import logging
 
@@ -38,7 +40,8 @@ async def generate_report(
         
         # Generate a unique report ID
         closing_time = report_data.inventory_data.actual_close_time.strftime('%Y-%m-%d')
-        report_id = f"{report_data.company_data.id}-{report_data.restaurant_data.id}-{closing_time}"
+        unique_suffix = str(uuid4()) # Add a unique suffix to avoid ID conflicts
+        report_id = f"{report_data.company_data.id}-{report_data.restaurant_data.id}-{closing_time}-{unique_suffix}"
         
         # Generate PDF
         generator = ReportGenerator()
@@ -69,21 +72,24 @@ async def list_reports(
     """
     Lists metadata for reports, paginated.
     """
+    logging.info(f"Listing reports for company ID {company_id} and restaurant ID {restaurant_id}...")
+    
     try:
-        reports, total = await storage_service.list_reports_by_restaurant(company_id, restaurant_id, page, per_page)
-        if not reports:
-            logging.error("No reports found.")
+        # Fetch reports
+        result = await storage_service.list_reports_by_restaurant(company_id, restaurant_id, page, per_page)
+    except ValueError as e:
+        # Handle errors
+        error_message = str(e)
+        if "No reports found" in error_message:
+            logging.warning("No reports found.")
             raise HTTPException(status_code=404, detail="No reports found.")
+        elif "out of range" in error_message:
+            logging.error(f"Invalid page requested: {error_message}")
+            raise HTTPException(status_code=400, detail=error_message)
         
-        return PaginatedReportsResponse(
-            reports=reports,
-            total=total,
-            page=page,
-            per_page=per_page,
-        )
-    except Exception as e:
-        logging.error(f"Error listing reports: {e}")
-        raise HTTPException(status_code=500, detail="Internal error listing reports.")
+    # Return paginated response
+    logging.info(f"Returning {len(result.reports)} reports for company ID {company_id} and restaurant ID {restaurant_id}.")
+    return result
 
 
 @router.get("/{report_id}", response_model=None)
@@ -107,4 +113,4 @@ async def download_report(
             return RedirectResponse(report_path)  # Return URL for S3
     except FileNotFoundError:
         logging.error(f"Report {report_id} not found.")
-        raise HTTPException(status_code=404, detail=f"Report {report_id} not found.")
+        raise HTTPException(status_code=404, detail=f"Report with ID {report_id} not found.")
