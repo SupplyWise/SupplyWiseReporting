@@ -39,22 +39,22 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 1em;
         }
-        .products-table {
+        .items-table {
             width: 100%;
             border-collapse: collapse;
             margin: 2em 0;
         }
-        .products-table th {
+        .items-table th {
             background: #2c3e50;
             color: white;
             padding: 0.8em;
             text-align: left;
         }
-        .products-table td {
+        .items-table td {
             padding: 0.8em;
             border-bottom: 1px solid #ddd;
         }
-        .products-table tr:nth-child(even) {
+        .items-table tr:nth-child(even) {
             background: #f8f9fa;
         }
         .footer {
@@ -77,32 +77,32 @@
         <div class="info-grid">
             <div>
                 <strong>Company:</strong> {{ report.company_data.name }}<br>
-                <strong>Restaurant:</strong> {{ report.restaurant_data.name }}
+                <strong>Restaurant:</strong> {{ report.restaurant_data.name }}<br>
+                <strong>Report Issuer:</strong> {{ report.user_data.name }}<br>
             </div>
             <div>
-                <strong>Report Issuer:</strong> {{ report.user_data.name }}<br>
                 <strong>Expected Closing Date:</strong> {{ report.inventory_data.expected_close_time.strftime('%Y-%m-%d %H:%M:%S') }}<br>
                 <strong>Actual Closing Date:</strong> {{ report.inventory_data.actual_close_time.strftime('%Y-%m-%d %H:%M:%S') }}
             </div>
         </div>
     </div>
 
-    <h2>Product amounts upon Inventory Closure</h2>
+    <h2>Item amounts upon Inventory Closure</h2>
 
-    <table class="products-table">
+    <table class="items-table">
         <thead>
             <tr>
-                <th>Product Name</th>
+                <th>Item Name</th>
                 <th>Barcode</th>
                 <th>Quantity</th>
             </tr>
         </thead>
         <tbody>
-            {% for product in report.inventory_data.products %}
+            {% for item in report.inventory_data.items %}
             <tr>
-                <td>{{ product.name }}</td>
-                <td>{{ product.barcode }}</td>
-                <td>{{ product.quantity }}</td>
+                <td>{{ item.name or "N/A" }}</td>
+                <td>{{ item.barcode or "N/A" }}</td>
+                <td>{{ item.quantity }}</td>
             </tr>
             {% endfor %}
         </tbody>

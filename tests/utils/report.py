@@ -27,9 +27,9 @@ def generate_valid_report_request() -> ReportCreateRequest:
         inventory_data=InventoryData(
             expected_close_time=datetime.now() + timedelta(hours=1),
             actual_close_time=datetime.now(),
-            products=[
-                Item(id=uuid4(), name="Product A", barcode=1234567890, quantity=5.0),
-                Item(id=uuid4(), name="Product B", barcode=1234567891, quantity=10.0),
+            items=[
+                Item(id=uuid4(), name='Item A', barcode=1234567890, quantity=5.0),
+                Item(id=uuid4(), name='Item B', barcode=1234567891, quantity=10.0),
             ]
         ),
         report_name="Monthly Inventory Report"
@@ -53,9 +53,9 @@ def generate_valid_report_request_json() -> dict:
         "inventory_data": {
             "expected_close_time": (datetime.now() + timedelta(hours=1)).isoformat(),
             "actual_close_time": datetime.now().isoformat(),
-            "products": [
-                {"id": str(uuid4()), "name": "Product A", "barcode": 1234567890, "quantity": 5.0},
-                {"id": str(uuid4()), "name": "Product B", "barcode": 1234567891, "quantity": 10.0},
+            "items": [
+                {"id": str(uuid4()), "name": 'Item A', "barcode": 1234567890, "quantity": 5.0},
+                {"id": str(uuid4()), "name": 'Item B', "barcode": 1234567891, "quantity": 10.0},
             ],
         },
         "report_name": "Monthly Inventory Report",

@@ -12,11 +12,11 @@ def test_generate_report_success():
     assert len(pdf_content) > 0
 
 
-def test_generate_report_with_many_products():
+def test_generate_report_with_many_items():
     generator = ReportGenerator()
     report_request = generate_valid_report_request()
-    report_request.inventory_data.products = [
-        Item(id=uuid4(), name=f"Product {i}", barcode=1000 + i, quantity=i * 1.0)
+    report_request.inventory_data.items = [
+        Item(id=uuid4(), name=f'Item {i}', barcode=1000 + i, quantity=i * 1.0)
         for i in range(1, 101)
     ]
 

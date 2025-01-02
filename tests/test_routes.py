@@ -28,9 +28,9 @@ def test_generate_report_invalid_report_name():
     assert "Report Name must be between 3 and 100 characters long" in str(response.json())
 
 
-def test_generate_report_empty_products():
+def test_generate_report_empty_items():
     request_data = generate_valid_report_request_json()
-    request_data["inventory_data"]["products"] = []  # Empty product list
+    request_data["inventory_data"]["items"] = []  # Empty product list
     response = client.post("/reports/", json=request_data)
     assert response.status_code == 422
     assert "List should have at least 1 item after validation" in response.json()["detail"][0]["msg"]
@@ -38,18 +38,18 @@ def test_generate_report_empty_products():
 
 def test_generate_report_negative_quantity():
     request_data = generate_valid_report_request_json()
-    request_data["inventory_data"]["products"][0]["quantity"] = -5.0  # Negative quantity
+    request_data["inventory_data"]["items"][0]["quantity"] = -5.0  # Negative quantity
     response = client.post("/reports/", json=request_data)
     assert response.status_code == 422
     assert "Input should be greater than or equal to 0" in response.json()["detail"][0]["msg"]
 
 
-def test_generate_report_invalid_product_name():
+def test_generate_report_invalid_item_name():
     request_data = generate_valid_report_request_json()
-    request_data["inventory_data"]["products"][0]["name"] = "A"  # Invalid product name
+    request_data["inventory_data"]["items"][0]["name"] = "A"  # Invalid product name
     response = client.post("/reports/", json=request_data)
     assert response.status_code == 422
-    assert "Item Name must be between 3 and 100 characters long" in str(response.json())
+    assert "String should have at least 3 characters" in str(response.json())
 
 
 def test_get_report_not_found():
