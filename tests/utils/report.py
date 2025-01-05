@@ -26,8 +26,8 @@ def generate_valid_report_request() -> ReportCreateRequest:
             name="Test User"
         ),
         inventory_data=InventoryData(
-            expected_close_time=datetime.now() + timedelta(hours=1),
-            actual_close_time=datetime.now(),
+            starting_time=datetime.now() - timedelta(days=1),
+            closure_time=datetime.now(),
             items=[
                 Item(id=uuid4(), name='Coke', barcode=1234567890, quantity=5.0, category=ItemCategory.DRINKABLE),
                 Item(id=uuid4(), name='Burger', barcode=1234567891, quantity=10.0, category=ItemCategory.EATABLE),

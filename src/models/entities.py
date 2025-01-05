@@ -40,6 +40,6 @@ class Item(BaseModel):
         return v
 
 class InventoryData(BaseModel):
-    expected_close_time: datetime = Field(..., description="Expected close time of the inventory")
-    actual_close_time: datetime = Field(..., description="Actual close time of the inventory")
-    items: List[Item] = Field(..., description="List of items for the report", min_length=1)
+    starting_time: datetime = Field(..., description="Strating timestamp of the inventory")
+    closure_time: datetime = Field(..., description="Closing timestamp of the inventory")
+    items: List[Item] = Field(..., description="List of items upon closure for the report", min_length=1)

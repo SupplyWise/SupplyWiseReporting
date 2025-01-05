@@ -117,8 +117,8 @@
                 <strong>Report Issuer:</strong> {{ report.user_data.name }}<br>
             </div>
             <div>
-                <strong>Expected Closing Date:</strong> {{ report.inventory_data.expected_close_time.strftime('%Y-%m-%d %H:%M:%S') }}<br>
-                <strong>Actual Closing Date:</strong> {{ report.inventory_data.actual_close_time.strftime('%Y-%m-%d %H:%M:%S') }}
+                <strong>Starting Date:</strong> {{ report.inventory_data.starting_time.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                <strong>Closure Date:</strong> {{ report.inventory_data.closure_time.strftime('%Y-%m-%d %H:%M:%S') }}
             </div>
         </div>
     </div>
