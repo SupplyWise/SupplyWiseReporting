@@ -6,6 +6,7 @@ from src.models.entities import (
     UserData,
     InventoryData,
     Item,
+    ItemCategory,
 )
 from src.models.schemas import ReportCreateRequest
 
@@ -28,13 +29,17 @@ def generate_valid_report_request() -> ReportCreateRequest:
             expected_close_time=datetime.now() + timedelta(hours=1),
             actual_close_time=datetime.now(),
             items=[
-                Item(id=uuid4(), name='Item A', barcode=1234567890, quantity=5.0),
-                Item(id=uuid4(), name='Item B', barcode=1234567891, quantity=10.0),
+                Item(id=uuid4(), name='Coke', barcode=1234567890, quantity=5.0, category=ItemCategory.DRINKABLE),
+                Item(id=uuid4(), name='Burger', barcode=1234567891, quantity=10.0, category=ItemCategory.EATABLE),
+                Item(id=uuid4(), name='Fries', barcode=1234567892, quantity=8.0, category=ItemCategory.EATABLE),
+                Item(id=uuid4(), name='Custom Item', barcode=1234567893, quantity=2.0, category=ItemCategory.CUSTOM),
+                #* No unknow item to verify the category is not included in the report
             ]
         ),
         report_name="Monthly Inventory Report"
     )
 
+#TODO change this one to include categories as well
 def generate_valid_report_request_json() -> dict:
     """Returns a valid JSON-like dictionary for report creation in route tests."""
     return {

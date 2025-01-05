@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import List
 from uuid import UUID
+from enum import Enum
 
 class CompanyData(BaseModel):
     id: UUID = Field(default_factory=UUID, description="Company ID")
@@ -15,11 +16,18 @@ class UserData(BaseModel):
     id: UUID = Field(default_factory=UUID, description="User ID")
     name: str = Field(..., description="User name")
 
+class ItemCategory(str, Enum):
+    DRINKABLE = "DRINKABLE"
+    EATABLE = "EATABLE"
+    CUSTOM = "CUSTOM"
+    UNKNOWN = "UNKNOWN" # This is a default value for the enum
+
 class Item(BaseModel):
     id: UUID = Field(default_factory=UUID, description="Item ID")
     name: str = Field(..., min_length=3, max_length=100, description="Item name")
     barcode: int = Field(..., ge=0, description="Item barcode")
     quantity: float = Field(..., ge=0, description="Item quantity in stock (greater than or equal to 0)")
+    category: ItemCategory = Field(..., description="Item category (drinkable, edible, custom, unknown)")
 
     @field_validator('barcode')
     def validate_barcode(cls, v):

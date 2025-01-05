@@ -40,6 +40,11 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 1em;
         }
+        h2 {
+            text-align: center;
+            margin-top: 1.5em;
+            margin-bottom: 1em;
+        }
         .items-table {
             width: 100%;
             border-collapse: separate;
@@ -87,7 +92,6 @@
         }
         .items-table tr:last-child td {
             border-bottom: none;
-            border-right: none;
         }
         .footer {
             margin-top: 2em;
@@ -100,7 +104,7 @@
 <body>
     <div class="header">
         <h1>Inventory Report</h1>
-        <p>Generated on {{ current_date }}</p>
+        <p>Generated on {{ generation_date }}</p>
     </div>
 
     <h2>General Information</h2>
@@ -121,6 +125,8 @@
 
     <h2>Item stock upon Inventory Closure</h2>
 
+    {% for category, items in items_by_category.items() %}
+    <h3>{{ category | capitalize }}</h3>
     <table class="items-table">
         <thead>
             <tr>
@@ -130,7 +136,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for item in report.inventory_data.items %}
+            {% for item in items %}
             <tr>
                 <td>{{ item.name or "N/A" }}</td>
                 <td>{{ item.barcode or "N/A" }}</td>
@@ -139,6 +145,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endfor %}
 
     <div class="footer">
         <p>This is an automatically generated report by SupplyWise</p>
