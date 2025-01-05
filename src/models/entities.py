@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import datetime
 from typing import List
 from uuid import UUID
@@ -43,3 +43,9 @@ class InventoryData(BaseModel):
     starting_time: datetime = Field(..., description="Strating timestamp of the inventory")
     closure_time: datetime = Field(..., description="Closing timestamp of the inventory")
     items: List[Item] = Field(..., description="List of items upon closure for the report", min_length=1)
+
+    @model_validator(mode="after")
+    def validate_time_order(self):
+        if self.closure_time <= self.starting_time:
+            raise ValueError('The closure time must be after the starting time')
+        return self

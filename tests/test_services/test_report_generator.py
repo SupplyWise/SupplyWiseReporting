@@ -28,5 +28,5 @@ def test_generate_report_with_many_items():
     assert isinstance(pdf_content, bytes)
     assert len(pdf_content) > 0
 
-    with open('big_test_report.pdf', 'wb') as file:
-        file.write(pdf_content)
+    # with open('big_test_report.pdf', 'wb') as file:
+    #     file.write(pdf_content)

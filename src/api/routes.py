@@ -39,7 +39,7 @@ async def generate_report(
         logging.info("Initializing report generation...")
         
         # Generate a unique report ID
-        closing_time = report_data.inventory_data.actual_close_time.strftime('%Y-%m-%d')
+        closing_time = report_data.inventory_data.closure_time.strftime('%Y-%m-%d')
         unique_suffix = str(uuid4()) # Add a unique suffix to avoid ID conflicts
         report_id = f"{report_data.company_data.id}-{report_data.restaurant_data.id}-{closing_time}-{unique_suffix}"
         

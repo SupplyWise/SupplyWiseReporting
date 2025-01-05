@@ -39,7 +39,6 @@ def generate_valid_report_request() -> ReportCreateRequest:
         report_name="Monthly Inventory Report"
     )
 
-#TODO change this one to include categories as well
 def generate_valid_report_request_json() -> dict:
     """Returns a valid JSON-like dictionary for report creation in route tests."""
     return {
@@ -56,12 +55,15 @@ def generate_valid_report_request_json() -> dict:
             "name": "Test User",
         },
         "inventory_data": {
-            "expected_close_time": (datetime.now() + timedelta(hours=1)).isoformat(),
-            "actual_close_time": datetime.now().isoformat(),
+            "starting_time": (datetime.now() - timedelta(days=1)).isoformat(),
+            "closure_time": datetime.now().isoformat(),
             "items": [
-                {"id": str(uuid4()), "name": 'Item A', "barcode": 1234567890, "quantity": 5.0},
-                {"id": str(uuid4()), "name": 'Item B', "barcode": 1234567891, "quantity": 10.0},
-            ],
+                {"id": str(uuid4()), "name": 'Coke', "barcode": 1234567890, "quantity": 5.0, "category": "DRINKABLE"},
+                {"id": str(uuid4()), "name": 'Burger', "barcode": 1234567891, "quantity": 10.0, "category": "EATABLE"},
+                {"id": str(uuid4()), "name": 'Fries', "barcode": 1234567892, "quantity": 8.0, "category": "EATABLE"},
+                {"id": str(uuid4()), "name": 'Custom Item', "barcode": 1234567893, "quantity": 2.0, "category": "CUSTOM"},
+                #* No unknow item to verify the category is not included in the report
+            ]
         },
         "report_name": "Monthly Inventory Report",
     }

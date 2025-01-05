@@ -27,9 +27,9 @@ class ReportGenerator:
         for item in data.inventory_data.items:
             items_by_category[item.category].append(item)
 
-        # Sort items by category and remove empty categories
+        # Sort items by category and alphabetically within each category, while removing empty categories
         ordered_items_by_category = {
-            category: items_by_category[category]
+            category: sorted(items_by_category[category], key=lambda x : x.name)
             for category in category_order
             if category in items_by_category and items_by_category[category]
         }
