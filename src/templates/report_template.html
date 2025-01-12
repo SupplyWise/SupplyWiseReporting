@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Report</title>
+    <style>
+        @page {
+            margin: 2.5cm;
+            @top-center {
+                content: "SupplyWise Inventory Report";
+                font-family: Arial;
+                font-size: 8pt;
+            }
+            @bottom-right {
+                content: counter(page);
+                font-family: Arial;
+                font-size: 8pt;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.3;
+            color: #333;
+            font-size: 8pt;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1.5em;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 0.8em;
+        }
+        .company-info {
+            margin: 1.5em 0;
+            padding: 0.8em;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1em;
+        }
+        h2 {
+            text-align: center;
+            margin-top: 1.5em;
+            margin-bottom: 1em;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1.5em 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .items-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 0.4em 0.6em;
+            text-align: left;
+            font-size: 7pt;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .items-table th:first-child {
+            width: 70%;
+        }
+        .items-table th:nth-child(2){
+            width: 15%;
+        }
+        .items-table th:last-child {
+            width: 15%;
+            border-right: none;
+        }
+        .items-table td {
+            padding: 0.3em 0.6em;
+            border-bottom: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            font-size: 7pt;
+        }
+        .items-table td:first-child {
+            white-space: normal;
+            word-wrap: break-word;
+        }
+        .items-table td:nth-child(2),
+        .items-table td:last-child {
+            white-space: nowrap;
+        }
+        .items-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .items-table tr:last-child td {
+            border-bottom: none;
+        }
+        .footer {
+            margin-top: 2em;
+            text-align: center;
+            font-size: 7pt;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Inventory Report</h1>
+        <p>Generated on {{ generation_date }}</p>
+    </div>
+
+    <h2>General Information</h2>
+
+    <div class="company-info">
+        <div class="info-grid">
+            <div>
+                <strong>Company:</strong> {{ report.company_data.name }}<br>
+                <strong>Restaurant:</strong> {{ report.restaurant_data.name }}<br>
+                <strong>Report Issuer:</strong> {{ report.user_data.name }}<br>
+            </div>
+            <div>
+                <strong>Starting Date:</strong> {{ report.inventory_data.starting_time.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                <strong>Closure Date:</strong> {{ report.inventory_data.closure_time.strftime('%Y-%m-%d %H:%M:%S') }}
+            </div>
+        </div>
+    </div>
+
+    <h2>Item stock upon Inventory Closure</h2>
+
+    {% for category, items in items_by_category.items() %}
+    <h3>{{ category | capitalize }}</h3>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Barcode</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.name or "N/A" }}</td>
+                <td>{{ item.barcode or "N/A" }}</td>
+                <td>{{ item.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
+
+    <div class="footer">
+        <p>This is an automatically generated report by SupplyWise</p>
+    </div>
+</body>
+</html>
